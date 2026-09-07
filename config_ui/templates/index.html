@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>闲鱼自动回复 · 配置中心</title>
+<style>
+  :root {
+    --blue: #0071e3;
+    --blue-hover: #0077ed;
+    --bg: #f5f5f7;
+    --card: rgba(255,255,255,0.82);
+    --border: rgba(0,0,0,0.08);
+    --text: #1d1d1f;
+    --sub: #86868b;
+    --green: #34c759;
+    --red: #ff3b30;
+    --radius: 20px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "SF Pro SC", "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg) linear-gradient(180deg, #f8f8fa 0%, var(--bg) 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 120px;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* 毛玻璃顶部导航 */
+  .navbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background: rgba(255,255,255,0.72);
+    border-bottom: 1px solid var(--border);
+  }
+  .navbar-inner {
+    max-width: 760px; margin: 0 auto; padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .navbar h1 { font-size: 17px; font-weight: 600; letter-spacing: 0.2px; }
+  .navbar .actions { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    border: none; border-radius: 980px; padding: 7px 18px; font-size: 13px;
+    cursor: pointer; transition: all .15s ease; font-family: inherit;
+  }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: var(--blue-hover); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--blue); }
+  .btn-ghost:hover { background: rgba(0,113,227,0.08); }
+  .btn-danger { background: transparent; color: var(--red); }
+  .btn-danger:hover { background: rgba(255,59,48,0.08); }
+  .btn-mini { padding: 3px 10px; font-size: 11px; }
+  .btn-soft { background: rgba(0,113,227,0.1); color: var(--blue); }
+  .btn-soft:hover { background: rgba(0,113,227,0.16); }
+
+  .container { max-width: 760px; margin: 80px auto 0; padding: 0 20px; }
+  /* 白卡片：圆角无阴影、细描边（Vision Pro 风格） */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 16px;
+  }
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .card-title .tag { font-size: 11px; color: var(--sub); font-weight: 400; background: rgba(0,0,0,0.05); padding: 2px 8px; border-radius: 980px; }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--sub); margin-bottom: 6px; }
+  .field input[type="text"], .field input[type="password"], .field textarea, .field select {
+    width: 100%; border: 1px solid var(--border); border-radius: 12px;
+    padding: 9px 12px; font-size: 13.5px; font-family: inherit; color: var(--text);
+    background: rgba(255,255,255,0.9); outline: none; transition: border .15s;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
+  .field textarea { min-height: 64px; resize: vertical; line-height: 1.5; }
+
+  /* 模式选择 */
+  .mode-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .mode-item {
+    border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 10px;
+    cursor: pointer; text-align: center; transition: all .15s; background: #fff;
+  }
+  .mode-item .m-name { font-size: 14px; font-weight: 600; }
+  .mode-item .m-desc { font-size: 11px; color: var(--sub); margin-top: 4px; line-height: 1.4; }
+  .mode-item.active { border-color: var(--blue); background: rgba(0,113,227,0.06); }
+  .mode-item.active .m-name { color: var(--blue); }
+
+  /* 规则列表 */
+  .rule-item {
+    border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 10px; background: #fff;
+  }
+  .rule-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .rule-head .idx { width: 22px; height: 22px; border-radius: 50%; background: rgba(0,113,227,0.1); color: var(--blue); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .rule-head .ops { margin-left: auto; display: flex; gap: 6px; }
+  .kw-input { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; font-family: inherit; outline: none; }
+  .kw-input:focus { border-color: var(--blue); }
+  .rule-item .hint { font-size: 11px; color: var(--sub); margin: 5px 0 8px; }
+
+  .hint-line { font-size: 12px; color: var(--sub); line-height: 1.6; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .hint-line code { background: rgba(0,0,0,0.05); padding: 1px 6px; border-radius: 6px; font-size: 11.5px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%) translateY(80px);
+    background: rgba(29,29,31,0.92); color: #fff; font-size: 13px;
+    padding: 11px 22px; border-radius: 980px; opacity: 0; transition: all .3s ease; z-index: 200; max-width: 90%;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  .toast.error { background: rgba(255,59,48,0.95); }
+
+  .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: rot .7s linear infinite; vertical-align: -1px; }
+  @keyframes rot { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="navbar-inner">
+    <h1>闲鱼自动回复 · 配置中心</h1>
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="testAI()" id="btnTestAI">测试 AI</button>
+      <button class="btn btn-primary" onclick="saveAll()" id="btnSave">保存配置</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 运行模式 -->
+  <div class="card">
+    <div class="card-title">回复生成模式 <span class="tag">mode</span></div>
+    <div class="mode-group">
+      <div class="mode-item" data-mode="rule" onclick="pickMode('rule')">
+        <div class="m-name">纯规则</div>
+        <div class="m-desc">只按关键词规则回复，零成本、最稳定</div>
+      </div>
+      <div class="mode-item" data-mode="mixed" onclick="pickMode('mixed')">
+        <div class="m-name">规则优先 + AI 兜底</div>
+        <div class="m-desc">规则命中用规则话术，未命中交给 AI</div>
+      </div>
+      <div class="mode-item" data-mode="ai" onclick="pickMode('ai')">
+        <div class="m-name">纯 AI</div>
+        <div class="m-desc">所有买家消息交给 AI 生成回复</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI 配置 -->
+  <div class="card">
+    <div class="card-title">AI 大模型（国产主流均支持） <span class="tag">config.json → ai</span></div>
+    <div class="field">
+      <label>服务商预设（选择后自动填入接口地址与模型，再填上你的 API Key）</label>
+      <select id="aiProvider" onchange="applyProvider(this.value)">
+        <option value="doubao">豆包（火山方舟）</option>
+        <option value="deepseek">DeepSeek</option>
+        <option value="qwen">通义千问（阿里百炼）</option>
+        <option value="kimi">Kimi（月之暗面）</option>
+        <option value="glm">智谱 GLM</option>
+        <option value="spark">讯飞星火</option>
+        <option value="silicon">硅基流动</option>
+        <option value="custom">自定义（其他 OpenAI 兼容接口）</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>API Key（在对应服务商控制台创建）</label>
+      <input type="password" id="aiKey" placeholder="sk-xxxxxxxxxxxxxxxx">
+    </div>
+    <div class="field">
+      <label>模型 / 推理接入点（如 doubao-lite-32k / deepseek-chat / ep-xxxxxxxx）</label>
+      <input type="text" id="aiModel" placeholder="doubao-lite-32k">
+    </div>
+    <div class="field">
+      <label>接口地址（OpenAI 兼容格式）</label>
+      <input type="text" id="aiBase" placeholder="https://ark.cn-beijing.volces.com/api/v3">
+    </div>
+    <div class="hint-line">⚠️ 未填 Key 时系统自动回退「规则+兜底话术」，不影响使用；填好后点右上角「测试 AI」验证。所有服务商均为 OpenAI 兼容接口，也不限于此列表。</div>
+  </div>
+
+  <!-- 兜底与忽略 -->
+  <div class="card">
+    <div class="card-title">兜底话术 &amp; 忽略词 <span class="tag">rules.json</span></div>
+    <div class="field">
+      <label>兜底话术（规则和 AI 都不可用时使用）</label>
+      <textarea id="defaultReply" rows="2"></textarea>
+    </div>
+    <div class="field">
+      <label>忽略词（买家发的确认/感谢类短消息不回复，用逗号分隔）</label>
+      <textarea id="ignoreWords" rows="2"></textarea>
+    </div>
+  </div>
+
+  <!-- 回复规则 -->
+  <div class="card">
+    <div class="card-title">回复规则 <span class="tag">rules.json → rules</span></div>
+    <div class="hint-line" style="margin-top:0; padding-top:0; border-top:0; margin-bottom:14px; color:var(--sub);">
+      规则按从上到下顺序匹配，先命中的生效。关键词用逗号分隔，买家消息含任一关键词即触发。
+    </div>
+    <div id="ruleList"></div>
+    <button class="btn btn-soft" onclick="addRule()" style="width:100%; margin-top:4px;">+ 添加规则</button>
+  </div>
+
+  <div class="hint-line">
+    启动机器人：双击 <code>start_bot.bat</code> —— 无参数=试运行（不回发）；参数 <code>--no-dry-run</code> 正式回复。<br>
+    重新登录闲鱼后若端口失效，先双击 <code>start_xianyu_debug.bat</code> 再启动机器人。
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let state = { config: {}, rules: {} };
+
+// 国产大模型 OpenAI 兼容接口预设（选择后自动填充 base/model）
+const PROVIDERS = {
+  doubao:   { name: '豆包（火山方舟）',      base: 'https://ark.cn-beijing.volces.com/api/v3', model: 'doubao-lite-32k' },
+  deepseek: { name: 'DeepSeek',              base: 'https://api.deepseek.com',                  model: 'deepseek-chat' },
+  qwen:     { name: '通义千问（阿里百炼）',   base: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen-plus' },
+  kimi:     { name: 'Kimi（月之暗面）',       base: 'https://api.moonshot.cn/v1',               model: 'moonshot-v1-8k' },
+  glm:      { name: '智谱 GLM',              base: 'https://open.bigmodel.cn/api/paas/v4',     model: 'glm-4-plus' },
+  spark:    { name: '讯飞星火',              base: 'https://spark-api-open.xf-yun.com/v1',     model: 'generalv3.5' },
+  silicon:  { name: '硅基流动',              base: 'https://api.siliconflow.cn/v1',            model: 'deepseek-ai/DeepSeek-V3' }
+};
+
+function applyProvider(val) {
+  if (val === 'custom') { toast('已切换为自定义，请手动填写接口地址和模型名'); return; }
+  const p = PROVIDERS[val];
+  if (p) {
+    $('aiBase').value = p.base;
+    $('aiModel').value = p.model;
+    toast('已填入' + p.name + ' 预设，请填写对应 API Key 后保存');
+  }
+}
+
+function detectProvider() {
+  // 根据已保存的 base_url 自动匹配预设（编辑时默认选中对应厂商）
+  const base = (state.config.ai && state.config.ai.base_url || '').replace(/\s/g, '');
+  for (const [k, v] of Object.entries(PROVIDERS)) {
+    if (base.includes(v.base.replace(/\s/g, '').split('//')[1].split('/')[0])) { $('aiProvider').value = k; return; }
+  }
+  $('aiProvider').value = 'custom';
+}
+
+function toast(msg, isError) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.className = 'toast', 2600);
+}
+
+async function load() {
+  try {
+    const r = await fetch('/api/config');
+    state = await r.json();
+    apply();
+  } catch (e) { toast('加载配置失败：' + e.message, true); }
+}
+
+function apply() {
+  const c = state.config || {}, a = c.ai || {}, rules = state.rules || {};
+  pickMode(c.mode || 'mixed', true);
+  $('aiKey').value = a.api_key || '';
+  $('aiModel').value = a.model || 'doubao-lite-32k';
+  $('aiBase').value = a.base_url || 'https://ark.cn-beijing.volces.com/api/v3';
+  detectProvider();
+  $('defaultReply').value = rules.default || '';
+  $('ignoreWords').value = (rules.ignore || []).join('，');
+  renderRules(rules.rules || []);
+}
+
+function pickMode(mode, silent) {
+  document.querySelectorAll('.mode-item').forEach(el => el.classList.toggle('active', el.dataset.mode === mode));
+  if (!silent) toast('已切换模式：' + ({rule:'纯规则', mixed:'规则优先+AI兜底', ai:'纯AI'}[mode]));
+}
+
+function renderRules(list) {
+  const wrap = $('ruleList');
+  wrap.innerHTML = '';
+  list.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'rule-item';
+    div.innerHTML = `
+      <div class="rule-head">
+        <span class="idx">${i + 1}</span>
+        <input class="kw-input" style="flex:1;" value="${esc(r.desc || '')}" placeholder="规则名称，如：咨询价格" data-f="desc">
+        <div class="ops">
+          <button class="btn btn-mini btn-soft" onclick="moveRule(${i},-1)">↑</button>
+          <button class="btn btn-mini btn-soft" onclick="moveRule(${i},1)">↓</button>
+          <button class="btn btn-mini btn-danger" onclick="delRule(${i})">删除</button>
+        </div>
+      </div>
+      <input class="kw-input" value="${esc((r.keywords||[]).join('，'))}" placeholder="关键词，逗号分隔，如：多少钱，价格，怎么卖" data-f="keywords">
+      <div class="hint">回复内容</div>
+      <textarea class="kw-input" rows="2" placeholder="买家命中关键词时回复的文案" data-f="reply">${esc(r.reply || '')}</textarea>`;
+    div._data = r;
+    wrap.appendChild(div);
+  });
+}
+
+function collectRules() {
+  return [...$('ruleList').children].map(div => {
+    const r = div._data || {};
+    const desc = div.querySelector('[data-f="desc"]').value.trim();
+    const kw = div.querySelector('[data-f="keywords"]').value;
+    const reply = div.querySelector('[data-f="reply"]').value.trim();
+    return { desc: desc || '未命名规则', keywords: kw.split(/[,，]/).map(s => s.trim()).filter(Boolean), reply };
+  }).filter(r => r.reply);
+}
+
+function addRule() {
+  const list = state.rules.rules || [];
+  list.push({ desc: '新规则', keywords: [], reply: '' });
+  renderRules(list);
+}
+
+function delRule(i) { renderRules(state.rules.rules.filter((_, j) => j !== i)); }
+function moveRule(i, d) {
+  const list = state.rules.rules; const j = i + d;
+  if (j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  renderRules(list);
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+async function saveAll() {
+  const btn = $('btnSave'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+  const cfg = {
+    _说明: state.config._说明 || '',
+    mode: document.querySelector('.mode-item.active').dataset.mode,
+    ai: {
+      base_url: $('aiBase').value.trim() || 'https://ark.cn-beijing.volces.com/api/v3',
+      api_key: $('aiKey').value.trim(),
+      model: $('aiModel').value.trim() || 'doubao-lite-32k',
+      timeout: 30
+    }
+  };
+  const rules = {
+    _说明: state.rules._说明 || '',
+    default: $('defaultReply').value.trim(),
+    ignore: $('ignoreWords').value.split(/[,，]/).map(s => s.trim()).filter(Boolean),
+    rules: collectRules()
+  };
+  try {
+    const r = await fetch('/api/save', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ config: cfg, rules })
+    });
+    const j = await r.json();
+    toast(j.msg, !j.ok);
+    if (j.ok) { state = { config: cfg, rules }; }
+  } catch (e) { toast('保存失败：' + e.message, true); }
+  btn.disabled = false; btn.innerHTML = '保存配置';
+}
+
+async function testAI() {
+  const btn = $('btnTestAI'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+  try {
+    const r = await fetch('/api/test-ai', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        base_url: $('aiBase').value.trim(), api_key: $('aiKey').value.trim(), model: $('aiModel').value.trim()
+      })
+    });
+    const j = await r.json();
+    toast(j.msg, !j.ok);
+  } catch (e) { toast('请求失败：' + e.message, true); }
+  btn.disabled = false; btn.innerHTML = '测试 AI';
+}
+
+load();
+</script>
+</body>
+</html>

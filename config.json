@@ -1,0 +1,10 @@
+{
+  "_说明": "闲鱼卖家客服自动回复 - 全局配置。mode: rule=纯规则 | ai=纯AI生成 | mixed=规则优先,AI兜底。AI 配置项填入火山方舟的 API Key 后即可启用 AI。",
+  "ai": {
+    "api_key": "请填入你的火山方舟API Key（SK-xxxx）",
+    "base_url": "https://ark.cn-beijing.volces.com/api/v3",
+    "model": "doubao-lite-32k",
+    "timeout": 30
+  },
+  "mode": "mixed"
+}
