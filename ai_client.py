@@ -29,7 +29,8 @@ class DoubaoAI:
     def _load_config():
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            # utf-8-sig：兼容带/不带 BOM 的配置文件
+            with open(path, "r", encoding="utf-8-sig") as f:
                 return (json.load(f) or {}).get("ai", {})
         except Exception:
             return {}
