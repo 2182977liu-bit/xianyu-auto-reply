@@ -9,213 +9,629 @@
     --blue: #0071e3;
     --blue-hover: #0077ed;
     --bg: #f5f5f7;
-    --card: rgba(255,255,255,0.82);
-    --border: rgba(0,0,0,0.08);
+    --card: rgba(255,255,255,0.86);
+    --border: rgba(0,0,0,0.07);
     --text: #1d1d1f;
     --sub: #86868b;
     --green: #34c759;
     --red: #ff3b30;
-    --radius: 20px;
+    --amber: #ff9f0a;
+    --space-2xs: 4px;
+    --space-xs: 8px;
+    --space-sm: 12px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+    --z-sticky: 10;
+    --z-toast: 30;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
     font-family: -apple-system, "SF Pro SC", "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
     background: var(--bg) linear-gradient(180deg, #f8f8fa 0%, var(--bg) 100%);
     color: var(--text);
     min-height: 100vh;
-    padding-bottom: 120px;
+    padding-bottom: calc(var(--space-2xl) * 2);
     -webkit-font-smoothing: antialiased;
+    line-height: 1.45;
   }
-  /* 毛玻璃顶部导航 */
   .navbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    position: sticky; top: 0; left: 0; right: 0; z-index: var(--z-sticky);
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     background: rgba(255,255,255,0.72);
     border-bottom: 1px solid var(--border);
   }
   .navbar-inner {
-    max-width: 760px; margin: 0 auto; padding: 14px 20px;
-    display: flex; align-items: center; justify-content: space-between;
+    max-width: 960px; margin: 0 auto; padding: var(--space-sm) var(--space-lg);
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-md);
   }
-  .navbar h1 { font-size: 17px; font-weight: 600; letter-spacing: 0.2px; }
-  .navbar .actions { display: flex; gap: 10px; align-items: center; }
+  .brand { display: flex; align-items: center; gap: var(--space-sm); }
+  .brand-text h1 { font-size: 17px; font-weight: 600; letter-spacing: 0.2px; }
+  .brand-text .subtitle { font-size: 11.5px; color: var(--sub); }
+  .mini-status {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 980px;
+    background: rgba(0,0,0,0.04); font-size: 11px; color: var(--sub);
+    cursor: pointer; transition: background .15s;
+  }
+  .mini-status:hover { background: rgba(0,0,0,0.07); }
+  .mini-status .dot { width: 8px; height: 8px; border-radius: 50%; background: #c7c7cc; }
+  .mini-status.on .dot { background: var(--green); }
+  .mini-status.off .dot { background: var(--red); }
+  .navbar .actions { display: flex; gap: var(--space-xs); align-items: center; }
+  .save-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); display: none; animation: breathe 1.6s ease-in-out infinite; }
+  .save-dot.show { display: inline-block; }
+  @keyframes breathe { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+  .btn-save-wrap { position: relative; display: inline-flex; align-items: center; gap: 4px; }
+  #btnSave.saved { background: var(--green); }
+  #btnSave.saved:hover { background: #2db44e; }
   .btn {
-    border: none; border-radius: 980px; padding: 7px 18px; font-size: 13px;
+    border: none; border-radius: 980px; padding: 8px 20px; font-size: 13.5px;
     cursor: pointer; transition: all .15s ease; font-family: inherit;
+    min-height: 36px;
   }
+  .btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
   .btn-primary { background: var(--blue); color: #fff; }
   .btn-primary:hover { background: var(--blue-hover); }
-  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary:active { transform: scale(.97); }
+  .btn-primary:disabled { opacity: .45; cursor: not-allowed; transform: none; }
   .btn-ghost { background: transparent; color: var(--blue); }
   .btn-ghost:hover { background: rgba(0,113,227,0.08); }
-  .btn-danger { background: transparent; color: var(--red); }
+  .btn-danger { background: transparent; color: var(--red); border: 1px solid rgba(255,59,48,.35); }
   .btn-danger:hover { background: rgba(255,59,48,0.08); }
-  .btn-mini { padding: 3px 10px; font-size: 11px; }
+  .btn-danger:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-lg { padding: 12px 28px; font-size: 15px; min-height: 44px; }
+  .btn-mini { padding: 4px 12px; font-size: 12px; min-height: 30px; }
   .btn-soft { background: rgba(0,113,227,0.1); color: var(--blue); }
   .btn-soft:hover { background: rgba(0,113,227,0.16); }
-
-  .container { max-width: 760px; margin: 80px auto 0; padding: 0 20px; }
-  /* 白卡片：圆角无阴影、细描边（Vision Pro 风格） */
+  .tabs-wrap { max-width: 960px; margin: 0 auto; padding: var(--space-sm) var(--space-lg) 0; }
+  .tabs {
+    display: flex; gap: var(--space-xs);
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 4px;
+    backdrop-filter: saturate(180%) blur(10px);
+  }
+  .tab-btn {
+    flex: 1; border: none; background: transparent; cursor: pointer;
+    padding: 10px var(--space-sm); font-size: 13px; font-weight: 500;
+    color: var(--sub); border-radius: var(--radius-sm);
+    transition: all .2s ease; font-family: inherit;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    position: relative;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    background: #fff; color: var(--text); font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+  }
+  .tab-btn .tab-emoji { margin-right: 4px; }
+  .tab-badge {
+    display: none; position: absolute; top: 4px; right: 8px;
+    min-width: 16px; height: 16px; line-height: 16px;
+    font-size: 10px; font-weight: 700; color: #fff;
+    background: var(--red); border-radius: 980px; padding: 0 5px;
+  }
+  .tab-badge.show { display: inline-block; }
+  .container { max-width: 960px; margin: var(--space-md) auto 0; padding: 0 var(--space-lg); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeIn .18s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .layout { display: grid; gap: var(--space-md); grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .span-full { grid-column: 1 / -1; }
   .card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 22px 24px;
-    margin-bottom: 16px;
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
   }
-  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-  .card-title .tag { font-size: 11px; color: var(--sub); font-weight: 400; background: rgba(0,0,0,0.05); padding: 2px 8px; border-radius: 980px; }
-
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 12px; color: var(--sub); margin-bottom: 6px; }
+  .card-title {
+    font-size: 15px; font-weight: 600; margin-bottom: var(--space-md);
+    display: flex; align-items: center; gap: var(--space-xs);
+  }
+  .card-title .tag {
+    font-size: 11px; color: var(--sub); font-weight: 400;
+    background: rgba(0,0,0,0.05); padding: 2px 8px; border-radius: 980px;
+  }
+  .card-desc { font-size: 12px; color: var(--sub); line-height: 1.6; margin-bottom: var(--space-md); }
+  .run-head { display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap; }
+  .run-status { display: flex; align-items: center; gap: var(--space-sm); flex: 1; min-width: 200px; }
+  .run-dot-wrap { position: relative; width: 34px; height: 34px; display: grid; place-items: center; }
+  .run-dot { width: 14px; height: 14px; border-radius: 50%; background: #c7c7cc; transition: background .3s; }
+  .run-dot.on { background: var(--green); }
+  .run-dot.on::after {
+    content: ''; position: absolute; inset: 2px; border-radius: 50%;
+    border: 3px solid rgba(52,199,89,.45); animation: pulse 2s ease-out infinite;
+  }
+  .run-dot.off { background: var(--red); }
+  @keyframes pulse { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.35); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .run-dot.on::after, .save-dot { animation: none; }
+    * { transition: none !important; }
+  }
+  .run-title { font-size: 17px; font-weight: 650; line-height: 1.2; }
+  .run-sub { display: flex; align-items: center; gap: var(--space-xs); flex-wrap: wrap; margin-top: var(--space-2xs); }
+  .badge {
+    font-size: 11px; padding: 2px 10px; border-radius: 980px;
+    background: rgba(0,0,0,0.06); color: var(--sub); font-weight: 500;
+  }
+  .badge.green { background: rgba(52,199,89,0.14); color: #1e8e3e; }
+  .badge.red { background: rgba(255,59,48,0.12); color: #d70015; }
+  .badge.blue { background: rgba(0,113,227,0.12); color: var(--blue); }
+  .run-actions { display: flex; gap: var(--space-xs); align-items: center; }
+  .run-log { margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--border); }
+  .run-log .lbl { font-size: 11px; color: var(--sub); margin-bottom: var(--space-2xs); }
+  .run-log .line {
+    font-size: 12px; font-family: "SF Mono", Consolas, "Courier New", monospace;
+    color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .run-log.empty .line { color: #c7c7cc; }
+  .field { margin-bottom: var(--space-md); }
+  .field label { display: block; font-size: 12px; color: var(--sub); margin-bottom: var(--space-xs); }
   .field input[type="text"], .field input[type="password"], .field textarea, .field select {
-    width: 100%; border: 1px solid var(--border); border-radius: 12px;
-    padding: 9px 12px; font-size: 13.5px; font-family: inherit; color: var(--text);
-    background: rgba(255,255,255,0.9); outline: none; transition: border .15s;
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 12px; font-size: 13.5px; font-family: inherit; color: var(--text);
+    background: #fff; outline: none; transition: border .15s, box-shadow .15s;
   }
-  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.15); }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+  }
   .field textarea { min-height: 64px; resize: vertical; line-height: 1.5; }
-
-  /* 模式选择 */
-  .mode-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .fields-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--space-md); }
+  @container (max-width: 420px) { .fields-2col { grid-template-columns: 1fr; } }
+  .ai-form { container-type: inline-size; }
+  .mode-group { display: grid; gap: var(--space-xs); }
   .mode-item {
-    border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 10px;
-    cursor: pointer; text-align: center; transition: all .15s; background: #fff;
+    display: flex; align-items: center; gap: var(--space-sm);
+    border: 1.5px solid var(--border); border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md); cursor: pointer;
+    transition: all .15s; background: #fff; text-align: left;
   }
+  .mode-item .m-radio {
+    width: 18px; height: 18px; border-radius: 50%; border: 2px solid #d2d2d7;
+    transition: border .15s; flex-shrink: 0; position: relative;
+  }
+  .mode-item.active .m-radio { border-color: var(--blue); }
+  .mode-item.active .m-radio::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--blue); }
+  .mode-item .m-body { min-width: 0; }
   .mode-item .m-name { font-size: 14px; font-weight: 600; }
-  .mode-item .m-desc { font-size: 11px; color: var(--sub); margin-top: 4px; line-height: 1.4; }
-  .mode-item.active { border-color: var(--blue); background: rgba(0,113,227,0.06); }
+  .mode-item .m-desc { font-size: 11.5px; color: var(--sub); margin-top: 2px; line-height: 1.4; }
+  .mode-item.active { border-color: var(--blue); background: rgba(0,113,227,0.05); }
   .mode-item.active .m-name { color: var(--blue); }
-
-  /* 规则列表 */
+  .mode-item:hover { border-color: rgba(0,113,227,.45); }
+  .divider { height: 1px; background: var(--border); margin: var(--space-md) 0; }
   .rule-item {
-    border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 10px; background: #fff;
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+    padding: var(--space-md); margin-bottom: var(--space-sm); background: #fff;
+    transition: border .15s, box-shadow .15s;
   }
-  .rule-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .rule-head .idx { width: 22px; height: 22px; border-radius: 50%; background: rgba(0,113,227,0.1); color: var(--blue); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .rule-head .ops { margin-left: auto; display: flex; gap: 6px; }
-  .kw-input { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; font-family: inherit; outline: none; }
-  .kw-input:focus { border-color: var(--blue); }
-  .rule-item .hint { font-size: 11px; color: var(--sub); margin: 5px 0 8px; }
-
-  .hint-line { font-size: 12px; color: var(--sub); line-height: 1.6; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
-  .hint-line code { background: rgba(0,0,0,0.05); padding: 1px 6px; border-radius: 6px; font-size: 11.5px; }
-
-  /* Toast */
+  .rule-item:hover { border-color: rgba(0,0,0,0.14); }
+  .rule-item.dragging { opacity: .45; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+  .rule-item.drag-over { border-color: var(--blue); border-style: dashed; }
+  .rule-head { display: flex; align-items: center; gap: var(--space-xs); margin-bottom: var(--space-sm); }
+  .rule-head .idx {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(0,113,227,0.1); color: var(--blue);
+    font-size: 12px; font-weight: 600; display: grid; place-items: center; flex-shrink: 0;
+  }
+  .drag-handle {
+    cursor: grab; color: #c7c7cc; font-size: 14px; letter-spacing: 2px;
+    padding: 2px 4px; border-radius: 6px; user-select: none; flex-shrink: 0;
+  }
+  .drag-handle:hover { color: var(--sub); background: rgba(0,0,0,0.04); }
+  .drag-handle:active { cursor: grabbing; }
+  .rule-head .ops { margin-left: auto; display: flex; gap: var(--space-2xs); }
+  .kw-input {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 9px 12px; font-size: 12.5px; font-family: inherit; outline: none;
+    transition: border .15s, box-shadow .15s; background: #fff;
+  }
+  .kw-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.12); }
+  .rule-item .hint { font-size: 11px; color: var(--sub); margin: var(--space-xs) 0; }
+  .rule-item textarea.kw-input { line-height: 1.5; }
+  .add-rule { width: 100%; margin-top: var(--space-xs); min-height: 40px; border: 1.5px dashed rgba(0,113,227,.4); }
+  .foot {
+    margin-top: var(--space-2xl);
+    font-size: 12px; color: var(--sub); line-height: 1.7; border-top: 1px solid var(--border);
+    padding-top: var(--space-md);
+  }
+  .foot code { background: rgba(0,0,0,0.05); padding: 1px 6px; border-radius: 6px; font-size: 11.5px; }
+  .foot b { color: var(--text); font-weight: 600; }
+  .kbd {
+    display: inline-block; padding: 1px 6px; border-radius: 6px;
+    background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.08);
+    font-size: 11px; font-family: inherit;
+  }
+  .metrics { display: flex; gap: var(--space-xs); flex-wrap: wrap; margin-top: var(--space-sm); }
+  .metric {
+    flex: 1; min-width: 90px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: var(--space-xs) var(--space-sm); background: rgba(255,255,255,0.6);
+    transition: background .3s;
+  }
+  .metric.flash { background: rgba(0,113,227,0.1); }
+  .metric .mv { font-size: 18px; font-weight: 650; letter-spacing: .3px; }
+  .metric .mk { font-size: 11px; color: var(--sub); }
+  .warn-banner {
+    margin-top: var(--space-sm); padding: 10px 14px; border-radius: var(--radius-sm);
+    background: rgba(255,59,48,0.08); border: 1px solid rgba(255,59,48,0.25);
+    color: #d70015; font-size: 12.5px; display: none;
+  }
+  .warn-banner.show { display: flex; align-items: center; gap: 8px; }
+  .warn-banner::before { content: '⚠'; font-size: 14px; }
+  .switch-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
+  .switch-row .s-info { min-width: 0; }
+  .switch-row .s-name { font-size: 13.5px; font-weight: 600; }
+  .switch-row .s-desc { font-size: 11.5px; color: var(--sub); margin-top: 2px; line-height: 1.5; }
+  .switch { position: relative; width: 46px; height: 27px; flex-shrink: 0; cursor: pointer; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .slider { position: absolute; inset: 0; border-radius: 980px; background: #e5e5ea; transition: background .2s; }
+  .switch .slider::after {
+    content: ''; position: absolute; width: 21px; height: 21px; left: 3px; top: 3px;
+    border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    transition: transform .2s;
+  }
+  .switch input:checked + .slider { background: var(--green); }
+  .switch input:checked + .slider::after { transform: translateX(19px); }
+  .switch input:focus-visible + .slider { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .review-item {
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md); margin-bottom: var(--space-xs); background: #fff;
+  }
+  .review-item .r-head { display: flex; align-items: center; gap: var(--space-xs); flex-wrap: wrap; }
+  .review-item .r-name { font-weight: 600; font-size: 13px; }
+  .review-item .r-time { font-size: 11px; color: var(--sub); }
+  .review-item .r-buyer { font-size: 12px; color: var(--sub); margin-top: var(--space-2xs); }
+  .review-item .r-reply, .dry-reply {
+    font-size: 13px; margin-top: var(--space-xs); padding: 8px 12px;
+    background: rgba(0,113,227,0.06); border-radius: var(--radius-sm); line-height: 1.5;
+  }
+  .review-item .r-ops { display: flex; gap: var(--space-xs); margin-top: var(--space-xs); }
+  .empty-tip { font-size: 12px; color: #c7c7cc; text-align: center; padding: var(--space-md) 0; }
+  .log-item {
+    font-size: 12px; padding: var(--space-xs) 0; border-bottom: 1px solid rgba(0,0,0,0.04);
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .log-item:last-child { border-bottom: none; }
+  .log-item .l-meta { color: var(--sub); font-size: 11px; display: flex; gap: var(--space-xs); flex-wrap: wrap; align-items: center; }
+  .st-pill { font-size: 10.5px; padding: 1px 8px; border-radius: 980px; font-weight: 500; }
+  .st-已发送 { background: rgba(52,199,89,0.14); color: #1e8e3e; }
+  .st-待确认 { background: rgba(255,159,10,0.16); color: #b26a00; }
+  .st-已拒绝 { background: rgba(255,59,48,0.12); color: #d70015; }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; }
+  .panel-head .ops { display: flex; gap: var(--space-xs); }
   .toast {
     position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%) translateY(80px);
     background: rgba(29,29,31,0.92); color: #fff; font-size: 13px;
-    padding: 11px 22px; border-radius: 980px; opacity: 0; transition: all .3s ease; z-index: 200; max-width: 90%;
+    padding: 12px 24px; border-radius: 980px; opacity: 0;
+    transition: all .3s ease; z-index: var(--z-toast); max-width: 90%; text-align: center;
   }
   .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
   .toast.error { background: rgba(255,59,48,0.95); }
-
-  .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: rot .7s linear infinite; vertical-align: -1px; }
+  .spin { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: rot .7s linear infinite; vertical-align: -2px; }
   @keyframes rot { to { transform: rotate(360deg); } }
+  @media (max-width: 640px) {
+    .navbar-inner { padding: var(--space-sm) var(--space-md); }
+    .container { padding: 0 var(--space-md); }
+    .tabs-wrap { padding: var(--space-sm) var(--space-md) 0; }
+    .run-actions { width: 100%; }
+    .run-actions .btn-lg { flex: 1; }
+    .fields-2col { grid-template-columns: 1fr; }
+    .tab-btn { font-size: 12px; padding: 8px 6px; }
+    .tab-btn .tab-emoji { margin-right: 2px; }
+  }
 </style>
 </head>
 <body>
 
 <div class="navbar">
   <div class="navbar-inner">
-    <h1>闲鱼自动回复 · 配置中心</h1>
+    <div class="brand">
+      <div class="mini-status" id="miniStatus" onclick="switchTab('run')" title="点击查看运行面板">
+        <span class="dot"></span>
+        <span class="mode" id="miniMode">—</span>
+      </div>
+      <div class="brand-text">
+        <h1>闲鱼自动回复 · 配置中心</h1>
+        <span class="subtitle">保存后自动热重载，无需重启机器人</span>
+      </div>
+    </div>
     <div class="actions">
       <button class="btn btn-ghost" onclick="testAI()" id="btnTestAI">测试 AI</button>
-      <button class="btn btn-primary" onclick="saveAll()" id="btnSave">保存配置</button>
+      <div class="btn-save-wrap">
+        <span class="save-dot" id="saveDot" title="有未保存的修改"></span>
+        <button class="btn btn-primary" onclick="saveAll()" id="btnSave">保存配置</button>
+      </div>
     </div>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="run" onclick="switchTab('run')">
+      <span class="tab-emoji">📡</span>运行面板
+      <span class="tab-badge" id="tabBadgeRun">0</span>
+    </button>
+    <button class="tab-btn" data-tab="ai" onclick="switchTab('ai')"><span class="tab-emoji">🤖</span>AI 配置</button>
+    <button class="tab-btn" data-tab="rules" onclick="switchTab('rules')"><span class="tab-emoji">📝</span>规则中心</button>
+    <button class="tab-btn" data-tab="kb" onclick="switchTab('kb')"><span class="tab-emoji">📦</span>知识库 &amp; 发货</button>
   </div>
 </div>
 
 <div class="container">
 
-  <!-- 运行模式 -->
-  <div class="card">
-    <div class="card-title">回复生成模式 <span class="tag">mode</span></div>
-    <div class="mode-group">
-      <div class="mode-item" data-mode="rule" onclick="pickMode('rule')">
-        <div class="m-name">纯规则</div>
-        <div class="m-desc">只按关键词规则回复，零成本、最稳定</div>
+  <div class="tab-panel active" id="panel-run">
+    <div class="layout">
+      <div class="card span-full">
+        <div class="run-head">
+          <div class="run-status">
+            <div class="run-dot-wrap"><span class="run-dot" id="dBot"></span></div>
+            <div>
+              <div class="run-title" id="tBot">检测中…</div>
+              <div class="run-sub">
+                <span class="badge" id="dCdp">调试端口 检测中…</span>
+                <span class="badge" id="bMode">模式 —</span>
+              </div>
+            </div>
+          </div>
+          <div class="run-actions">
+            <button class="btn btn-lg btn-primary" id="btnStart" onclick="startBot()">启动机器人</button>
+            <button class="btn btn-lg btn-danger" id="btnStop" onclick="stopBot()">停止</button>
+          </div>
+        </div>
+        <div class="run-log empty" id="runLog">
+          <div class="lbl">最近动作</div>
+          <div class="line" id="statusLog" title="">—</div>
+        </div>
+        <div class="warn-banner" id="warnBanner"></div>
+        <div class="metrics">
+          <div class="metric" id="metricReplies"><div class="mk">今日回复</div><div class="mv" id="mReplies">0</div></div>
+          <div class="metric" id="metricAi"><div class="mk">AI 生成</div><div class="mv" id="mAi">0</div></div>
+          <div class="metric" id="metricRule"><div class="mk">规则命中</div><div class="mv" id="mRule">0</div></div>
+          <div class="metric" id="metricPending"><div class="mk">待确认</div><div class="mv" id="mPending">0</div></div>
+        </div>
       </div>
-      <div class="mode-item" data-mode="mixed" onclick="pickMode('mixed')">
-        <div class="m-name">规则优先 + AI 兜底</div>
-        <div class="m-desc">规则命中用规则话术，未命中交给 AI</div>
+
+      <div class="card span-full" id="pendingCard" style="display:none;">
+        <div class="card-title panel-head">
+          <span>待确认回复 <span class="tag" id="pendingCount">0</span></span>
+          <button class="btn btn-mini btn-ghost" onclick="refreshPending()">刷新</button>
+        </div>
+        <div id="pendingList"><div class="empty-tip">暂无待确认回复。半自动审核开启后，AI 回复会先在这里等你确认。</div></div>
       </div>
-      <div class="mode-item" data-mode="ai" onclick="pickMode('ai')">
-        <div class="m-name">纯 AI</div>
-        <div class="m-desc">所有买家消息交给 AI 生成回复</div>
+
+      <div class="card span-full">
+        <div class="card-title panel-head">
+          <span>回复历史 <span class="tag">reply_log.jsonl</span></span>
+          <div class="ops">
+            <button class="btn btn-mini btn-ghost" onclick="refreshLog()">刷新</button>
+            <button class="btn btn-mini btn-ghost" onclick="cleanup()">清理日志</button>
+          </div>
+        </div>
+        <div id="logList"><div class="empty-tip">暂无回复记录</div></div>
       </div>
     </div>
   </div>
 
-  <!-- AI 配置 -->
-  <div class="card">
-    <div class="card-title">AI 大模型（国产主流均支持） <span class="tag">config.json → ai</span></div>
-    <div class="field">
-      <label>服务商预设（选择后自动填入接口地址与模型，再填上你的 API Key）</label>
-      <select id="aiProvider" onchange="applyProvider(this.value)">
-        <option value="doubao">豆包（火山方舟）</option>
-        <option value="deepseek">DeepSeek</option>
-        <option value="qwen">通义千问（阿里百炼）</option>
-        <option value="kimi">Kimi（月之暗面）</option>
-        <option value="glm">智谱 GLM</option>
-        <option value="spark">讯飞星火</option>
-        <option value="silicon">硅基流动</option>
-        <option value="custom">自定义（其他 OpenAI 兼容接口）</option>
-      </select>
+  <div class="tab-panel" id="panel-ai">
+    <div class="layout">
+      <div class="card">
+        <div class="card-title">回复生成模式 <span class="tag">mode</span></div>
+        <div class="mode-group">
+          <div class="mode-item" data-mode="rule" onclick="pickMode('rule')">
+            <span class="m-radio"></span>
+            <div class="m-body"><div class="m-name">纯规则</div><div class="m-desc">只按关键词回复，零成本、最稳定</div></div>
+          </div>
+          <div class="mode-item" data-mode="mixed" onclick="pickMode('mixed')">
+            <span class="m-radio"></span>
+            <div class="m-body"><div class="m-name">规则优先 + AI 兜底</div><div class="m-desc">规则命中用规则，未命中交给 AI</div></div>
+          </div>
+          <div class="mode-item" data-mode="ai" onclick="pickMode('ai')">
+            <span class="m-radio"></span>
+            <div class="m-body"><div class="m-name">纯 AI</div><div class="m-desc">所有消息交给 AI 生成回复</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card ai-form">
+        <div class="card-title">AI 大模型 <span class="tag">config.json → ai</span></div>
+        <div class="field">
+          <label for="aiProvider">服务商预设（选择后自动填入接口地址与模型，再填 API Key）</label>
+          <select id="aiProvider" onchange="applyProvider(this.value)">
+            <option value="doubao">豆包（火山方舟）</option>
+            <option value="deepseek">DeepSeek</option>
+            <option value="qwen">通义千问（阿里百炼）</option>
+            <option value="kimi">Kimi（月之暗面）</option>
+            <option value="glm">智谱 GLM</option>
+            <option value="spark">讯飞星火</option>
+            <option value="silicon">硅基流动</option>
+            <option value="custom">自定义（其他 OpenAI 兼容接口）</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aiKey">API Key（在对应服务商控制台创建）</label>
+          <input type="password" id="aiKey" placeholder="sk-xxxxxxxxxxxxxxxx" autocomplete="off">
+        </div>
+        <div class="fields-2col">
+          <div class="field">
+            <label for="aiModel">模型 / 推理接入点</label>
+            <input type="text" id="aiModel" placeholder="doubao-lite-32k">
+          </div>
+          <div class="field">
+            <label for="aiBase">接口地址</label>
+            <input type="text" id="aiBase" placeholder="https://ark.cn-beijing.volces.com/api/v3">
+          </div>
+        </div>
+        <div class="fields-2col">
+          <div class="field">
+            <label for="cooldown">同会话冷却（秒，防连环回复/风控）</label>
+            <input type="text" id="cooldown" inputmode="numeric" placeholder="120">
+          </div>
+          <div class="field" style="display:flex; align-items:flex-end;">
+            <div class="switch-row" style="width:100%; padding-bottom:10px;">
+              <div class="s-info">
+                <div class="s-name">半自动审核</div>
+                <div class="s-desc">回复先暂停，待网页确认后发送</div>
+              </div>
+              <label class="switch"><input type="checkbox" id="reviewMode"><span class="slider"></span></label>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:11.5px;color:var(--sub);line-height:1.6;">未填 Key 时自动回退「规则 + 兜底话术」；填好点右上角「测试 AI」验证。Key 已脱敏显示，留空保存 = 沿用原 Key。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">兜底话术 &amp; 忽略词 <span class="tag">rules.json</span></div>
+        <div class="field">
+          <label for="defaultReply">兜底话术（规则与 AI 都不可用时使用）</label>
+          <textarea id="defaultReply" rows="2"></textarea>
+        </div>
+        <div class="divider"></div>
+        <div class="field" style="margin-bottom:0;">
+          <label for="ignoreWords">忽略词（确认/感谢类短消息不回复，逗号分隔）</label>
+          <textarea id="ignoreWords" rows="2"></textarea>
+        </div>
+      </div>
     </div>
-    <div class="field">
-      <label>API Key（在对应服务商控制台创建）</label>
-      <input type="password" id="aiKey" placeholder="sk-xxxxxxxxxxxxxxxx">
-    </div>
-    <div class="field">
-      <label>模型 / 推理接入点（如 doubao-lite-32k / deepseek-chat / ep-xxxxxxxx）</label>
-      <input type="text" id="aiModel" placeholder="doubao-lite-32k">
-    </div>
-    <div class="field">
-      <label>接口地址（OpenAI 兼容格式）</label>
-      <input type="text" id="aiBase" placeholder="https://ark.cn-beijing.volces.com/api/v3">
-    </div>
-    <div class="hint-line">⚠️ 未填 Key 时系统自动回退「规则+兜底话术」，不影响使用；填好后点右上角「测试 AI」验证。所有服务商均为 OpenAI 兼容接口，也不限于此列表。</div>
   </div>
 
-  <!-- 兜底与忽略 -->
-  <div class="card">
-    <div class="card-title">兜底话术 &amp; 忽略词 <span class="tag">rules.json</span></div>
-    <div class="field">
-      <label>兜底话术（规则和 AI 都不可用时使用）</label>
-      <textarea id="defaultReply" rows="2"></textarea>
-    </div>
-    <div class="field">
-      <label>忽略词（买家发的确认/感谢类短消息不回复，用逗号分隔）</label>
-      <textarea id="ignoreWords" rows="2"></textarea>
+  <div class="tab-panel" id="panel-rules">
+    <div class="layout">
+      <div class="card">
+        <div class="card-title">模拟测试 <span class="tag">不发消息</span></div>
+        <div class="field">
+          <label for="testMsg">输入一条买家消息，看当前配置会怎么回（不会真的发送）</label>
+          <textarea id="testMsg" rows="2" placeholder="例：这个多少钱？"></textarea>
+        </div>
+        <button class="btn btn-ghost" onclick="dryTest()" id="btnDryTest" style="width:100%;">测试回复</button>
+        <div style="display:none; margin-top:var(--space-md);" id="dryResult">
+          <div class="rule-item" style="margin-bottom:0;">
+            <div class="hint" id="dryDesc"></div>
+            <div class="dry-reply" id="dryReply"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card span-full">
+        <div class="card-title">回复规则 <span class="tag">rules.json → rules</span></div>
+        <p class="card-desc">规则按从上到下顺序匹配，先命中的生效。<b>拖动左侧 ⋮⋮ 手柄调整顺序</b>，关键词用逗号分隔。</p>
+        <div id="ruleList"></div>
+        <button class="btn btn-soft add-rule" onclick="addRule()">+ 添加规则</button>
+      </div>
     </div>
   </div>
 
-  <!-- 回复规则 -->
-  <div class="card">
-    <div class="card-title">回复规则 <span class="tag">rules.json → rules</span></div>
-    <div class="hint-line" style="margin-top:0; padding-top:0; border-top:0; margin-bottom:14px; color:var(--sub);">
-      规则按从上到下顺序匹配，先命中的生效。关键词用逗号分隔，买家消息含任一关键词即触发。
+  <div class="tab-panel" id="panel-kb">
+    <div class="layout">
+      <div class="card span-full">
+        <div class="card-title">商品知识库 <span class="tag">product_kb</span></div>
+        <p class="card-desc">每条含「商品关键词」+ 专属须知；机器人点开会话时读取当前宝贝标题，命中关键词即用该条须知注入 AI 上下文，全部未命中用"默认"条。</p>
+        <div id="kbList"></div>
+        <button class="btn btn-soft add-rule" onclick="addList('kb')">+ 添加商品知识库</button>
+      </div>
+
+      <div class="card span-full">
+        <div class="card-title">网盘自动发货 <span class="tag">delivery_kb</span></div>
+        <p class="card-desc">机器人每 45 秒轮转巡检各会话买家的「待发货」订单：订单命中下方某条的关键词时，自动把该条的发货文案发给买家（不经过 AI，不重复发送）。</p>
+        <div id="dkList"></div>
+        <button class="btn btn-soft add-rule" onclick="addList('dk')">+ 添加发货资源</button>
+        <div style="font-size:11.5px;color:#b26a00;background:rgba(255,159,10,0.06);border-radius:8px;padding:8px 12px;border:1px solid rgba(255,159,10,0.25);margin-top:var(--space-md);">
+          注意：闲鱼对外链/网盘内容有风控，自动发货前建议用真实订单小规模验证，并留意「已发货」状态是否被平台同步。
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">买家策略 <span class="tag">buyers.json</span></div>
+        <div class="field">
+          <label for="blacklist">黑名单（逗号分隔，名单内买家一律不自动回复，如：同行试价号，退款纠纷号）</label>
+          <textarea id="blacklist" rows="2" placeholder="买家昵称1，买家昵称2"></textarea>
+        </div>
+        <div class="divider"></div>
+        <div class="field" style="margin-bottom:0;">
+          <label for="overrides">单人模式覆盖（每行一条：昵称=skip|rule|mixed|ai，如：难缠买家=rule）</label>
+          <textarea id="overrides" rows="3" placeholder="买家昵称=rule&#10;同行小号=skip"></textarea>
+        </div>
+      </div>
     </div>
-    <div id="ruleList"></div>
-    <button class="btn btn-soft" onclick="addRule()" style="width:100%; margin-top:4px;">+ 添加规则</button>
   </div>
 
-  <div class="hint-line">
-    启动机器人：双击 <code>start_bot.bat</code> —— 无参数=试运行（不回发）；参数 <code>--no-dry-run</code> 正式回复。<br>
-    重新登录闲鱼后若端口失效，先双击 <code>start_xianyu_debug.bat</code> 再启动机器人。
+  <div class="foot">
+    <b>快捷键：</b><span class="kbd">Ctrl</span> + <span class="kbd">S</span> 保存配置。<br>
+    <b>一键启停：</b>点上方「启动机器人」正式运行（跟随当前模式，改配置自动热重载）；「停止」即关闭。<br>
+    <b>命令行备选：</b>双击 <code>start_bot.bat</code> —— 无参数 = 试运行（不回发）；<code>--no-dry-run</code> 正式回复。<br>
+    <b>端口失效：</b>重新登录闲鱼后若调试端口失效，先双击 <code>start_xianyu_debug.bat</code> 再启动机器人。
   </div>
-
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const $ = id => document.getElementById(id);
-let state = { config: {}, rules: {} };
+let state = { config: {}, rules: {}, buyers: {} };
+let dirty = false;
 
-// 国产大模型 OpenAI 兼容接口预设（选择后自动填充 base/model）
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function toast(msg, isError) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.className = 'toast', 2600);
+}
+
+async function post(url, body) {
+  const r = await fetch(url, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {})
+  });
+  return r.json();
+}
+
+async function withBtn(btn, loadingHtml, fn) {
+  const orig = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = loadingHtml;
+  try { await fn(); } finally { btn.disabled = false; btn.innerHTML = orig; }
+}
+
+function markDirty() { dirty = true; $('saveDot').classList.add('show'); $('btnSave').classList.remove('saved'); }
+function markClean() { dirty = false; $('saveDot').classList.remove('show'); }
+function flashSaved() {
+  const b = $('btnSave');
+  b.classList.add('saved');
+  const orig = b.textContent;
+  b.textContent = '已保存 ✓';
+  setTimeout(() => { b.classList.remove('saved'); b.textContent = orig; }, 1600);
+}
+
+window.addEventListener('beforeunload', e => {
+  if (dirty) { e.preventDefault(); e.returnValue = ''; }
+});
+
+document.addEventListener('input', e => {
+  if (e.target.id !== 'testMsg' && e.target.matches('input, textarea, select')) markDirty();
+});
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+    e.preventDefault();
+    if (dirty) saveAll();
+    else toast('没有需要保存的修改');
+  }
+});
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+  if (name === 'run') { refreshPending(); refreshLog(); }
+}
+
 const PROVIDERS = {
   doubao:   { name: '豆包（火山方舟）',      base: 'https://ark.cn-beijing.volces.com/api/v3', model: 'doubao-lite-32k' },
   deepseek: { name: 'DeepSeek',              base: 'https://api.deepseek.com',                  model: 'deepseek-chat' },
@@ -232,50 +648,97 @@ function applyProvider(val) {
   if (p) {
     $('aiBase').value = p.base;
     $('aiModel').value = p.model;
+    markDirty();
     toast('已填入' + p.name + ' 预设，请填写对应 API Key 后保存');
   }
 }
 
 function detectProvider() {
-  // 根据已保存的 base_url 自动匹配预设（编辑时默认选中对应厂商）
-  const base = (state.config.ai && state.config.ai.base_url || '').replace(/\s/g, '');
+  const base = ((state.config.ai || {}).base_url || '').replace(/\s/g, '');
   for (const [k, v] of Object.entries(PROVIDERS)) {
     if (base.includes(v.base.replace(/\s/g, '').split('//')[1].split('/')[0])) { $('aiProvider').value = k; return; }
   }
   $('aiProvider').value = 'custom';
 }
 
-function toast(msg, isError) {
-  const t = $('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (isError ? ' error' : '');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.className = 'toast', 2600);
-}
-
 async function load() {
   try {
-    const r = await fetch('/api/config');
-    state = await r.json();
+    state = await (await fetch('/api/config')).json();
     apply();
+    markClean();
   } catch (e) { toast('加载配置失败：' + e.message, true); }
 }
 
 function apply() {
-  const c = state.config || {}, a = c.ai || {}, rules = state.rules || {};
+  const c = state.config || {}, a = c.ai || {}, rules = state.rules || {}, buyers = state.buyers || {};
   pickMode(c.mode || 'mixed', true);
   $('aiKey').value = a.api_key || '';
   $('aiModel').value = a.model || 'doubao-lite-32k';
   $('aiBase').value = a.base_url || 'https://ark.cn-beijing.volces.com/api/v3';
   detectProvider();
+  $('cooldown').value = c.cooldown_seconds != null ? c.cooldown_seconds : 120;
+  $('reviewMode').checked = !!c.review_mode;
   $('defaultReply').value = rules.default || '';
   $('ignoreWords').value = (rules.ignore || []).join('，');
+  $('blacklist').value = (buyers.blacklist || []).join('，');
+  $('overrides').value = Object.entries(buyers.overrides || {}).map(([k, v]) => k + '=' + v).join('\n');
+  listData.kb = JSON.parse(JSON.stringify(c.product_kb || []));
+  listData.dk = JSON.parse(JSON.stringify(c.delivery_kb || []));
+  renderList('kb');
+  renderList('dk');
   renderRules(rules.rules || []);
 }
 
+const MODE_NAMES = { rule: '纯规则', mixed: '规则优先+AI兜底', ai: '纯AI' };
+
 function pickMode(mode, silent) {
   document.querySelectorAll('.mode-item').forEach(el => el.classList.toggle('active', el.dataset.mode === mode));
-  if (!silent) toast('已切换模式：' + ({rule:'纯规则', mixed:'规则优先+AI兜底', ai:'纯AI'}[mode]));
+  if (!silent) { toast('已切换模式：' + MODE_NAMES[mode]); markDirty(); }
+}
+
+const LIST_DEF = {
+  kb: { el: 'kbList', field: 'info',
+    phMatch: '商品关键词，逗号分隔；留空 = 默认（所有未命中的商品）',
+    hint: '专属须知（发货/售后/价格政策，注入 AI 上下文）',
+    phText: '例：发货方式：付款后秒到账。\n售后：虚拟商品发货后不退换。',
+    empty: '暂无知识库条目，点击下方按钮添加（至少留一条"默认"）。' },
+  dk: { el: 'dkList', field: 'content',
+    phMatch: '商品关键词，逗号分隔（订单中命中即发）',
+    hint: '发货文案（网盘链接 + 提取码，原样发送给买家）',
+    phText: '例：链接：https://pan.baidu.com/s/xxxx  提取码：abcd',
+    empty: '暂无发货资源（留空 = 不启用自动发货）。点击下方按钮添加。' }
+};
+const listData = { kb: [], dk: [] };
+
+function renderList(key) {
+  const def = LIST_DEF[key], wrap = $(def.el);
+  wrap.innerHTML = '';
+  listData[key].forEach((e, i) => {
+    const div = document.createElement('div');
+    div.className = 'rule-item';
+    div.innerHTML = `
+      <div class="rule-head">
+        <span class="idx">${i + 1}</span>
+        <input class="kw-input" style="flex:1;" value="${esc(e.match || '')}" placeholder="${def.phMatch}" data-f="match">
+        <div class="ops"><button class="btn btn-mini btn-danger" onclick="delList('${key}',${i})">删除</button></div>
+      </div>
+      <div class="hint">${def.hint}</div>
+      <textarea class="kw-input" rows="3" placeholder="${def.phText}" data-f="${def.field}">${esc(e[def.field] || '')}</textarea>`;
+    wrap.appendChild(div);
+  });
+  if (!listData[key].length) wrap.innerHTML = `<div class="empty-tip">${def.empty}</div>`;
+}
+
+function addList(key) { listData[key].push({ match: '', [LIST_DEF[key].field]: '' }); renderList(key); markDirty(); }
+function delList(key, i) { listData[key].splice(i, 1); renderList(key); markDirty(); }
+
+function collectList(key) {
+  const def = LIST_DEF[key];
+  return [...$(def.el).children].map(div => {
+    const m = div.querySelector('[data-f="match"]');
+    const t = div.querySelector(`[data-f="${def.field}"]`);
+    return { match: m ? m.value.trim() : '', [def.field]: t ? t.value.trim() : '' };
+  }).filter(e => e[def.field]);
 }
 
 function renderRules(list) {
@@ -286,11 +749,10 @@ function renderRules(list) {
     div.className = 'rule-item';
     div.innerHTML = `
       <div class="rule-head">
+        <span class="drag-handle" draggable="true" title="拖动调整顺序">⋮⋮</span>
         <span class="idx">${i + 1}</span>
         <input class="kw-input" style="flex:1;" value="${esc(r.desc || '')}" placeholder="规则名称，如：咨询价格" data-f="desc">
         <div class="ops">
-          <button class="btn btn-mini btn-soft" onclick="moveRule(${i},-1)">↑</button>
-          <button class="btn btn-mini btn-soft" onclick="moveRule(${i},1)">↓</button>
           <button class="btn btn-mini btn-danger" onclick="delRule(${i})">删除</button>
         </div>
       </div>
@@ -298,13 +760,47 @@ function renderRules(list) {
       <div class="hint">回复内容</div>
       <textarea class="kw-input" rows="2" placeholder="买家命中关键词时回复的文案" data-f="reply">${esc(r.reply || '')}</textarea>`;
     div._data = r;
+    attachDrag(div, i);
     wrap.appendChild(div);
+  });
+}
+
+let dragIdx = null;
+
+function attachDrag(item, idx) {
+  const handle = item.querySelector('.drag-handle');
+  handle.addEventListener('dragstart', e => {
+    dragIdx = idx;
+    item.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', '');
+  });
+  handle.addEventListener('dragend', () => {
+    item.classList.remove('dragging');
+    document.querySelectorAll('#ruleList .rule-item').forEach(el => el.classList.remove('drag-over'));
+    dragIdx = null;
+  });
+  item.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragIdx === null || dragIdx === idx) return;
+    item.classList.add('drag-over');
+  });
+  item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+  item.addEventListener('drop', e => {
+    e.preventDefault();
+    item.classList.remove('drag-over');
+    if (dragIdx === null || dragIdx === idx) return;
+    const list = state.rules.rules;
+    const [moved] = list.splice(dragIdx, 1);
+    list.splice(idx, 0, moved);
+    renderRules(list);
+    markDirty();
   });
 }
 
 function collectRules() {
   return [...$('ruleList').children].map(div => {
-    const r = div._data || {};
     const desc = div.querySelector('[data-f="desc"]').value.trim();
     const kw = div.querySelector('[data-f="keywords"]').value;
     const reply = div.querySelector('[data-f="reply"]').value.trim();
@@ -313,67 +809,233 @@ function collectRules() {
 }
 
 function addRule() {
-  const list = state.rules.rules || [];
-  list.push({ desc: '新规则', keywords: [], reply: '' });
-  renderRules(list);
+  (state.rules.rules ||= []).push({ desc: '新规则', keywords: [], reply: '' });
+  renderRules(state.rules.rules);
+  markDirty();
 }
 
-function delRule(i) { renderRules(state.rules.rules.filter((_, j) => j !== i)); }
-function moveRule(i, d) {
-  const list = state.rules.rules; const j = i + d;
-  if (j < 0 || j >= list.length) return;
-  [list[i], list[j]] = [list[j], list[i]];
-  renderRules(list);
-}
-
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function delRule(i) { state.rules.rules.splice(i, 1); renderRules(state.rules.rules); markDirty(); }
 
 async function saveAll() {
-  const btn = $('btnSave'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
-  const cfg = {
-    _说明: state.config._说明 || '',
-    mode: document.querySelector('.mode-item.active').dataset.mode,
-    ai: {
-      base_url: $('aiBase').value.trim() || 'https://ark.cn-beijing.volces.com/api/v3',
-      api_key: $('aiKey').value.trim(),
-      model: $('aiModel').value.trim() || 'doubao-lite-32k',
-      timeout: 30
-    }
-  };
-  const rules = {
-    _说明: state.rules._说明 || '',
-    default: $('defaultReply').value.trim(),
-    ignore: $('ignoreWords').value.split(/[,，]/).map(s => s.trim()).filter(Boolean),
-    rules: collectRules()
-  };
-  try {
-    const r = await fetch('/api/save', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ config: cfg, rules })
+  await withBtn($('btnSave'), '<span class="spin"></span>', async () => {
+    const cfg = {
+      _说明: state.config._说明 || '',
+      mode: document.querySelector('.mode-item.active').dataset.mode,
+      review_mode: $('reviewMode').checked,
+      cooldown_seconds: parseInt($('cooldown').value.trim(), 10) || 120,
+      product_kb: collectList('kb'),
+      delivery_kb: collectList('dk'),
+      ai: {
+        base_url: $('aiBase').value.trim() || 'https://ark.cn-beijing.volces.com/api/v3',
+        api_key: $('aiKey').value.trim(),
+        model: $('aiModel').value.trim() || 'doubao-lite-32k',
+        timeout: 30
+      }
+    };
+    const rules = {
+      _说明: state.rules._说明 || '',
+      default: $('defaultReply').value.trim(),
+      ignore: $('ignoreWords').value.split(/[,，]/).map(s => s.trim()).filter(Boolean),
+      rules: collectRules()
+    };
+    const overrides = {};
+    $('overrides').value.split('\n').forEach(line => {
+      const m = line.match(/^\s*(.+?)\s*=\s*(skip|rule|mixed|ai)\s*$/);
+      if (m) overrides[m[1].trim()] = m[2];
     });
-    const j = await r.json();
-    toast(j.msg, !j.ok);
-    if (j.ok) { state = { config: cfg, rules }; }
-  } catch (e) { toast('保存失败：' + e.message, true); }
-  btn.disabled = false; btn.innerHTML = '保存配置';
+    const buyers = {
+      blacklist: $('blacklist').value.split(/[,，\n]/).map(s => s.trim()).filter(Boolean),
+      overrides
+    };
+    try {
+      const j = await post('/api/save', { config: cfg, rules, buyers });
+      toast(j.msg, !j.ok);
+      if (j.ok) { state = { config: cfg, rules, buyers }; markClean(); flashSaved(); }
+    } catch (e) { toast('保存失败：' + e.message, true); }
+  });
 }
 
 async function testAI() {
-  const btn = $('btnTestAI'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
-  try {
-    const r = await fetch('/api/test-ai', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+  await withBtn($('btnTestAI'), '<span class="spin"></span>', async () => {
+    try {
+      const j = await post('/api/test-ai', {
         base_url: $('aiBase').value.trim(), api_key: $('aiKey').value.trim(), model: $('aiModel').value.trim()
-      })
+      });
+      toast(j.msg, !j.ok);
+    } catch (e) { toast('请求失败：' + e.message, true); }
+  });
+}
+
+async function startBot() {
+  await withBtn($('btnStart'), '<span class="spin"></span>启动中…', async () => {
+    try {
+      const j = await post('/api/bot/start');
+      toast(j.msg, !j.ok);
+    } catch (e) { toast('启动请求失败：' + e.message, true); }
+  });
+  refreshStatus();
+}
+
+async function stopBot() {
+  await withBtn($('btnStop'), '<span class="spin"></span>停止中…', async () => {
+    try {
+      const j = await post('/api/bot/stop');
+      toast(j.msg, !j.ok);
+    } catch (e) { toast('停止请求失败：' + e.message, true); }
+  });
+  refreshStatus();
+}
+
+function setMetric(id, val) {
+  const el = $(id);
+  if (el.textContent !== String(val)) {
+    el.textContent = val;
+    const card = el.closest('.metric');
+    if (card) { card.classList.add('flash'); setTimeout(() => card.classList.remove('flash'), 700); }
+  }
+}
+
+async function refreshStatus() {
+  try {
+    const s = await (await fetch('/api/status')).json();
+    $('btnStart').disabled = s.robot_running;
+    $('btnStop').disabled = !s.robot_running;
+    $('warnBanner').textContent = s.page_error || '';
+    $('warnBanner').classList.toggle('show', !!(s.robot_running && s.page_error));
+    const t = s.today || {};
+    setMetric('mReplies', t.replies || 0);
+    setMetric('mAi', t.ai || 0);
+    setMetric('mRule', t.rule || 0);
+    $('dCdp').innerHTML = '调试端口 <b>' + (s.cdp_online ? '在线' : '未开启') + '</b>';
+    $('dCdp').className = 'badge ' + (s.cdp_online ? 'green' : 'red');
+    const dot = $('dBot');
+    const mini = $('miniStatus');
+    if (s.robot_running) {
+      dot.className = 'run-dot on';
+      const dry = s.dry_run ? '试运行 · 只检测不回发' : (s.review_enabled ? '正式回复 · 半自动审核' : '正式回复 · 自动发送');
+      $('tBot').textContent = '运行中 · ' + dry + (s.pid ? `（PID ${s.pid}）` : '');
+      $('bMode').textContent = '模式 ' + (s.robot_mode || '未知');
+      $('bMode').className = 'badge blue';
+      mini.className = 'mini-status on';
+      $('miniMode').textContent = (s.robot_mode || '运行中') + (s.dry_run ? ' · 试运行' : '');
+    } else {
+      dot.className = 'run-dot off';
+      $('tBot').textContent = '未运行';
+      const modeBtn = document.querySelector('.mode-item.active');
+      $('bMode').textContent = '模式 ' + (modeBtn ? modeBtn.querySelector('.m-name').textContent : '—');
+      $('bMode').className = 'badge';
+      mini.className = 'mini-status off';
+      $('miniMode').textContent = '未运行';
+    }
+    const act = s.last_actions && s.last_actions.length ? s.last_actions.join('；') : '—';
+    const line = $('statusLog');
+    line.textContent = s.last_log || act;
+    line.title = s.last_log || act;
+    $('runLog').classList.toggle('empty', !(s.last_log || act) || (s.last_log || act) === '—');
+  } catch (e) { /* 忽略瞬时错误 */ }
+}
+
+async function refreshPending() {
+  try {
+    const j = await (await fetch('/api/pending')).json();
+    const items = (j.items || []).filter(it => it.status === 'pending');
+    $('pendingCount').textContent = items.length;
+    setMetric('mPending', items.length);
+    $('pendingCard').style.display = items.length ? '' : 'none';
+    const badge = $('tabBadgeRun');
+    badge.textContent = items.length;
+    badge.classList.toggle('show', items.length > 0);
+    const wrap = $('pendingList');
+    if (!items.length) {
+      wrap.innerHTML = '<div class="empty-tip">暂无待确认回复。半自动审核开启后，AI 回复会先在这里等你确认。</div>';
+      return;
+    }
+    wrap.innerHTML = '';
+    items.forEach(it => {
+      const div = document.createElement('div');
+      div.className = 'review-item';
+      div.innerHTML = `
+        <div class="r-head">
+          <span class="r-name">${esc(it.session || '')}</span>
+          <span class="r-time">${esc(it.created_at || '')}</span>
+          <span class="st-pill st-待确认">待确认</span>
+        </div>
+        <div class="r-buyer">买家：${esc(it.buyer_text || '')}</div>
+        <div class="r-reply">${esc(it.reply || '')}</div>
+        <div class="r-ops">
+          <button class="btn btn-mini btn-primary" onclick="pendingDecide('${esc(it.id)}','confirm')">确认发送</button>
+          <button class="btn btn-mini btn-danger" onclick="pendingDecide('${esc(it.id)}','reject')">放弃</button>
+        </div>`;
+      wrap.appendChild(div);
     });
-    const j = await r.json();
+  } catch (e) { /* 忽略 */ }
+}
+
+async function pendingDecide(id, action) {
+  try {
+    const j = await post('/api/pending/decide', { id, action });
     toast(j.msg, !j.ok);
-  } catch (e) { toast('请求失败：' + e.message, true); }
-  btn.disabled = false; btn.innerHTML = '测试 AI';
+    refreshPending();
+    refreshLog();
+  } catch (e) { toast('操作失败：' + e.message, true); }
+}
+
+async function refreshLog() {
+  try {
+    const j = await (await fetch('/api/reply-log?limit=50')).json();
+    const items = j.items || [];
+    const wrap = $('logList');
+    if (!items.length) {
+      wrap.innerHTML = '<div class="empty-tip">暂无回复记录。机器人每发送/确认/拒绝一条回复都会在这里留痕。</div>';
+      return;
+    }
+    wrap.innerHTML = '';
+    items.forEach(it => {
+      const st = it.status || '已发送';
+      const div = document.createElement('div');
+      div.className = 'log-item';
+      div.innerHTML = `
+        <div class="l-meta">
+          <span>${esc(it.ts || '')}</span>
+          <span class="st-pill st-${st}">${esc(st)}</span>
+          <span>· ${esc(it.session || '')}</span>
+          <span>· ${esc(it.desc || '')}</span>
+        </div>
+        <div style="color:var(--sub);">买家：${esc(it.buyer_text || '')}</div>
+        <div>→ ${esc(it.reply || '')}</div>`;
+      wrap.appendChild(div);
+    });
+  } catch (e) { /* 忽略 */ }
+}
+
+async function cleanup() {
+  try {
+    const j = await post('/api/cleanup');
+    toast(j.msg, !j.ok);
+    refreshLog();
+  } catch (e) { toast('清理失败：' + e.message, true); }
+}
+
+async function dryTest() {
+  const text = $('testMsg').value.trim();
+  if (!text) { toast('请先输入模拟的买家消息', true); return; }
+  await withBtn($('btnDryTest'), '<span class="spin"></span>测试中…', async () => {
+    try {
+      const j = await post('/api/dry-test', { text });
+      $('dryResult').style.display = '';
+      if (!j.ok) { $('dryDesc').textContent = j.msg; $('dryReply').textContent = '—'; return; }
+      $('dryDesc').textContent = j.reply === null ? '判定：不回复' : '回复来源：' + j.desc;
+      $('dryReply').textContent = j.reply === null ? '（该消息被判定为无需回复：' + j.desc + '）' : j.reply;
+    } catch (e) { toast('测试失败：' + e.message, true); }
+  });
 }
 
 load();
+refreshStatus();
+refreshPending();
+refreshLog();
+setInterval(refreshStatus, 5000);
+setInterval(refreshPending, 6000);
 </script>
 </body>
 </html>
