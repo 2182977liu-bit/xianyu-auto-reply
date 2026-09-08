@@ -40,7 +40,8 @@ mcp = FastMCP("闲鱼自动回复")
 
 def _read_json(path, default=None):
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        # utf-8-sig：兼容带/不带 BOM 的文件
+        with open(path, "r", encoding="utf-8-sig") as f:
             return json.load(f)
     except Exception:
         return default if default is not None else {}
@@ -54,12 +55,13 @@ def _write_json(path, data):
 # ---------------- 工具：机器人控制 ----------------
 
 @mcp.tool()
-def control_bot(action: str, dry_run: bool = False, mode: str = "mixed") -> str:
+def control_bot(action: str, dry_run: bool = False, mode: str = "") -> str:
     """
     启动或停止闲鱼自动回复机器人。
     action: "start" 或 "stop"
     dry_run: 是否试运行（只检测不发送，默认 False 表示真实回复）
-    mode: rule(纯规则) / mixed(规则优先+AI兜底) / ai(纯AI)
+    mode: rule(纯规则) / mixed(规则优先+AI兜底) / ai(纯AI)；
+          留空则跟随 config.json 当前设置（推荐，之后改配置可热重载生效）
     """
     global bot_proc
     if action == "stop":
@@ -81,16 +83,18 @@ def control_bot(action: str, dry_run: bool = False, mode: str = "mixed") -> str:
             args.append("--dry-run")
         else:
             args.append("--no-dry-run")
-        args += ["--mode", mode]
+        if mode:
+            args += ["--mode", mode]
+        mode_show = mode if mode else "跟随config.json"
         logf = open(LOG_PATH, "a", encoding="utf-8")
-        logf.write(f"\n===== {time.strftime('%Y-%m-%d %H:%M:%S')} 启动 (mode={mode}, dry_run={dry_run}) =====\n")
+        logf.write(f"\n===== {time.strftime('%Y-%m-%d %H:%M:%S')} 启动 (mode={mode_show}, dry_run={dry_run}) =====\n")
         logf.flush()
         # windows 下隐藏控制台窗口
         creation = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
         bot_proc = subprocess.Popen(args, stdout=logf, stderr=subprocess.STDOUT,
                                     creationflags=creation, close_fds=True)
         time.sleep(2)
-        return f"机器人已启动 (PID={bot_proc.pid}, mode={mode}, dry_run={dry_run})。" \
+        return f"机器人已启动 (PID={bot_proc.pid}, mode={mode_show}, dry_run={dry_run})。" \
                f"可用 read_log 查看启动日志，get_status 查看状态。"
 
     return "未知操作，仅支持 start / stop"
@@ -178,7 +182,7 @@ def update_config(change: str) -> str:
 
     _write_json(CONFIG_PATH, cfg)
     _write_json(RULES_PATH, rules)
-    return "已保存。修改会在机器人下次重启后生效；如需立即生效，可对运行中的机器人先 stop 再 start。"
+    return "已保存。若机器人正在运行，几秒内会自动热重载生效，无需重启。"
 
 
 @mcp.tool()
@@ -221,7 +225,8 @@ def scan_once() -> str:
     try:
         sys.path.insert(0, BASE_DIR)
         from bot import (JS_READ_SESSIONS, JS_CLICK_SESSION, JS_READ_LAST_BUYER_MSG,
-                         SYSTEM_SKIP_KEYWORDS, generate_reply, load_rules, load_config)
+                         SYSTEM_SKIP_KEYWORDS, generate_reply, load_rules, load_config, strip_nick,
+                         select_kb)
         from ai_client import DoubaoAI
         from cdp_client import CDPClient
         import json as _json
@@ -246,14 +251,15 @@ def scan_once() -> str:
             if msg["isMine"]:
                 reports.append(f"· {key}：最后消息是自己发的，无需回复")
                 continue
-            text = msg["text"]
-            if len(text) <= len(key) + 1:
+            text = strip_nick(msg["text"], key)   # 去掉开头昵称，避免误当商品名
+            if len(text) <= 1:
                 reports.append(f"· {key}：最后消息是图片/表情，跳过")
                 continue
             if any(k in text for k in SYSTEM_SKIP_KEYWORDS):
                 reports.append(f"· {key}：系统卡片消息，跳过（{text[:24]}）")
                 continue
-            reply, desc = generate_reply(cfg.get("mode", "mixed"), rules, ai, text, [])
+            reply, desc = generate_reply(cfg.get("mode", "mixed"), rules, ai, text, [],
+                                             shop_info=cfg.get("shop_info") or "")
             if reply is None:
                 reports.append(f"· {key}：买家消息“{text[:30]}”→ 忽略，不回复")
             else:
