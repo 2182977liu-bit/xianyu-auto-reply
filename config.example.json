@@ -1,0 +1,28 @@
+{
+  "_说明": "闲鱼卖家客服自动回复 - 全局配置模板。复制本文件为 config.json 后填入你的 AI API Key 即可使用。mode: rule=纯规则 | ai=纯AI生成 | mixed=规则优先,AI兜底。review_mode=true 时 AI/规则生成的回复先暂停，等待网页端确认后发送。product_kb 为按商品区分的知识库：每项 match 填商品标题关键词（逗号分隔，命中即用该条目），info 为该商品的专属须知；match 留空的条目作为所有商品的默认须知。delivery_kb 为网盘自动发货资源库：机器人检测到买家「待发货」订单且订单文本命中 match 关键词时，自动发送 content（网盘链接+提取码），不经过 AI。cooldown_seconds 为同一会话两次自动回复的最小间隔（秒）。",
+  "mode": "ai",
+  "review_mode": false,
+  "cooldown_seconds": 120,
+  "product_kb": [
+    {
+      "match": "豆包,会员,VIP",
+      "info": "发货方式：付款后直接充值到买家自己账号，秒到账。\n售后政策：虚拟商品一经发货概不退换，请先确认账号无误再拍。\n工作时间：9:00-23:00 在线，其他时间留言看到即回。"
+    },
+    {
+      "match": "",
+      "info": "工作时间：9:00-23:00 在线，其他时间留言看到即回。\n具体商品情况请以宝贝详情页为准，不确定的问题请礼貌询问买家确认。"
+    }
+  ],
+  "delivery_kb": [
+    {
+      "match": "",
+      "content": ""
+    }
+  ],
+  "ai": {
+    "base_url": "https://api.deepseek.com",
+    "api_key": "sk-请填入你的APIKey",
+    "model": "deepseek-chat",
+    "timeout": 30
+  }
+}

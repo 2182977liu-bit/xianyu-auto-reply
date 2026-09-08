@@ -1,0 +1,5 @@
+{
+  "_说明": "买家策略。blacklist: 名单内买家一律不自动回复。overrides: 针对单个买家的模式覆盖，值可为 skip(不回复) / rule / mixed / ai；未列出的买家跟随全局 mode。",
+  "blacklist": [],
+  "overrides": {}
+}

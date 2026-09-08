@@ -5,8 +5,17 @@ __pycache__/
 *.pyc
 # 运行时状态与日志（含会话快照、运行日志，不入库）
 state.json
+bot_heartbeat.json
 bot_run.log
 bot_test.log
 bot_test_err.log
 config_ui/server.log
 config_ui/server_err.log
+# 敏感配置：真实 API Key 只在本地，提交模板见 config.example.json
+config.json
+# 临时诊断脚本
+_diag.py
+# 运行期生成文件
+bot_web.pid
+pending_review.json
+reply_log.jsonl
