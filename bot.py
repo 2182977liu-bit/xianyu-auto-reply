@@ -411,7 +411,7 @@ def strip_nick(text, nick):
 def parse_product(prod_raw):
     """
     从商品卡片的可见文本列表解析 (title, price, tag)。
-    文本格式如：["在线", "【直冲…】豆包会员 30天月", "｜", "¥", "13.99", "2人小刀价"]
+    文本格式如：["在线", "示例商品标题", "｜", "¥", "0.00", "示例标签"]
     """
     if not prod_raw or not prod_raw.get("ok"):
         return None

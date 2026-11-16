@@ -95,7 +95,7 @@ start_bot.bat --no-dry-run --mode ai
 ### 商品知识库（`product_kb`）
 
 ```
-{ "match": "豆包,会员,VIP", "info": "发货方式：付款后秒到账。\n售后：虚拟商品发货后不退换。" }
+{ "match": "示例商品关键词", "info": "该商品的专属须知：发货方式、售后政策、在线时间等。" }
 { "match": "",              "info": "默认须知：...（所有未命中商品的兜底）" }
 ```
 
@@ -104,7 +104,7 @@ start_bot.bat --no-dry-run --mode ai
 ### 网盘自动发货（`delivery_kb`）
 
 ```
-{ "match": "豆包会员", "content": "链接：https://pan.baidu.com/s/xxxx  提取码：abcd" }
+{ "match": "示例商品关键词", "content": "链接：https://example.com/xxx  提取码：0000" }
 ```
 
 ### 买家策略（`buyers.json`) 

@@ -699,8 +699,8 @@ function pickMode(mode, silent) {
 const LIST_DEF = {
   kb: { el: 'kbList', field: 'info',
     phMatch: '商品关键词，逗号分隔；留空 = 默认（所有未命中的商品）',
-    hint: '专属须知（发货/售后/价格政策，注入 AI 上下文）',
-    phText: '例：发货方式：付款后秒到账。\n售后：虚拟商品发货后不退换。',
+    hint: '专属须知（发货方式/售后政策/在线时间等，注入 AI 上下文）',
+    phText: '例：发货方式：在此填写。\n售后政策：在此填写。',
     empty: '暂无知识库条目，点击下方按钮添加（至少留一条"默认"）。' },
   dk: { el: 'dkList', field: 'content',
     phMatch: '商品关键词，逗号分隔（订单中命中即发）',
