@@ -31,9 +31,9 @@
 统一命令（stdio 方式）：
 
 ```
-命令：  d:\桌面\豆包\doubao\venv\Scripts\python.exe
-参数：  d:\桌面\豆包\doubao\xianyu-bot\mcp_server.py
-工作目录：d:\桌面\豆包\doubao\xianyu-bot
+命令：  D:\path\to\venv\Scripts\python.exe
+参数：  D:\path\to\xianyu-bot\mcp_server.py
+工作目录：D:\path\to\xianyu-bot
 ```
 
 ### TRAE
@@ -46,8 +46,8 @@
 {
   "mcpServers": {
     "xianyu-bot": {
-      "command": "d:\\桌面\\豆包\\doubao\\venv\\Scripts\\python.exe",
-      "args": ["d:\\桌面\\豆包\\doubao\\xianyu-bot\\mcp_server.py"]
+      "command": "D:\\path\\to\\venv\\Scripts\\python.exe",
+      "args": ["D:\\path\\to\\xianyu-bot\\mcp_server.py"]
     }
   }
 }
@@ -60,8 +60,8 @@
 {
   "mcpServers": {
     "xianyu-bot": {
-      "command": "d:\\桌面\\豆包\\doubao\\venv\\Scripts\\python.exe",
-      "args": ["d:\\桌面\\豆包\\doubao\\xianyu-bot\\mcp_server.py"]
+      "command": "D:\\path\\to\\venv\\Scripts\\python.exe",
+      "args": ["D:\\path\\to\\xianyu-bot\\mcp_server.py"]
     }
   }
 }
